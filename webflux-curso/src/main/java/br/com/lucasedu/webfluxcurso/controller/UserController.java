@@ -1,7 +1,10 @@
 package br.com.lucasedu.webfluxcurso.controller;
 
+import br.com.lucasedu.webfluxcurso.model.request.UserRequest;
+import br.com.lucasedu.webfluxcurso.model.response.UserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface UserController {
@@ -19,5 +22,5 @@ public interface UserController {
     ResponseEntity<Mono<UserResponse>> update(@PathVariable String id, @RequestBody UserRequest request);
 
     @DeleteMapping(value = "/{id}")
-    ResponseEntity<MOno<Void>> delete(@PathVariable String id);
+    ResponseEntity<Mono<Void>> delete(@PathVariable String id);
 }
