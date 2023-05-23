@@ -1,4 +1,4 @@
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://admin:<password>@webfluxcusrocluster.qolymz4.mongodb.net/webflux-curso?retryWrites=true&w=majority
+      uri: mongodb+srv://${DB_USER:admin}:${DB_PASSWORD}@webfluxcusrocluster.qolymz4.mongodb.net/${DB_NAME:webflux-curso}?retryWrites=true&w=majority
