@@ -28,7 +28,7 @@ class UserServiceTest {
     private UserMapper mapper;
 
     @Test
-    void save() {
+    void testSave() {
         UserRequest request = new UserRequest("Lucas", "Lucas@gmail.com", "123");
         User entity = User.builder().build();
 
@@ -43,5 +43,19 @@ class UserServiceTest {
                 .verify();
 
         verify(repository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void testeFindById() {
+        when(repository.findById(anyString())).thenReturn(Mono.just(User.builder().build()));
+
+        Mono<User> result = service.findById("123145");
+
+        StepVerifier.create(result)
+                .expectNextMatches(user -> user.getClass() == User.class)
+                .expectComplete()
+                .verify();
+
+        verify(repository, times(1)).findById(anyString());
     }
 }
