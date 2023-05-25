@@ -95,11 +95,14 @@ class UserControllerImplTest {
                 .jsonPath("$.name").isEqualTo(NAME)
                 .jsonPath("$.email").isEqualTo(EMAIL)
                 .jsonPath("$.password").isEqualTo(PASSWORD);
+
+        verify(userService).findById(anyString());
+        verify(userMapper).toResponse(any(User.class));
     }
 
     @Test
     @DisplayName("Test endpoint findAll with sucess")
-    void findAllWithSucess() {
+    void testFindAllWithSucess() {
         final var userResponse = new UserResponse(ID, NAME, EMAIL, PASSWORD);
 
         when(userService.findAll()).thenReturn(Flux.just(User.builder().build()));
@@ -114,10 +117,32 @@ class UserControllerImplTest {
                 .jsonPath("$.[0].name").isEqualTo(NAME)
                 .jsonPath("$.[0].email").isEqualTo(EMAIL)
                 .jsonPath("$.[0].password").isEqualTo(PASSWORD);
+
+        verify(userService).findAll();
+        verify(userMapper).toResponse(any(User.class));
     }
 
     @Test
-    void update() {
+    @DisplayName("Test endpoint update with sucess")
+    void testUpdateWithSucess() {
+        final var userResponse = new UserResponse(ID, NAME, EMAIL, PASSWORD);
+        final var userRequest = new UserRequest(NAME, EMAIL, PASSWORD);
+        when(userService.update(anyString(), any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
+        when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+        webTestClient.patch().uri("/users/"+ID)
+                .contentType(APPLICATION_JSON)
+                .body(fromValue(userRequest))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(ID)
+                .jsonPath("$.name").isEqualTo(NAME)
+                .jsonPath("$.email").isEqualTo(EMAIL)
+                .jsonPath("$.password").isEqualTo(PASSWORD);
+
+        verify(userService).update(anyString(), any(UserRequest.class));
+        verify(userMapper).toResponse(any(User.class));
     }
 
     @Test
