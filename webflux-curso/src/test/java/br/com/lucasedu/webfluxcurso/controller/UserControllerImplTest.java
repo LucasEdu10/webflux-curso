@@ -28,6 +28,10 @@ import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 @AutoConfigureWebTestClient
 class UserControllerImplTest {
 
+    public static final String ID = "1234556";
+    public static final String NAME = "Lucas";
+    public static final String EMAIL = "Lucas@gmail.com";
+    public static final String PASSWORD = "1234";
     @Autowired
     private WebTestClient webTestClient;
 
@@ -43,7 +47,7 @@ class UserControllerImplTest {
     @Test
     @DisplayName("Test endpoint save with sucess")
     void testeSaveWithSucess() {
-        UserRequest request = new UserRequest("Lucas", "Lucas@gmail.com", "123");
+        UserRequest request = new UserRequest(NAME, EMAIL, PASSWORD);
         when(userService.save(any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
 
         webTestClient.post().uri("/users")
@@ -58,7 +62,7 @@ class UserControllerImplTest {
     @Test
     @DisplayName("Test endpoint save with sucess")
     void testeSaveWithBadRequest() {
-        UserRequest request = new UserRequest("Lucas", "Lucas@gmail.com", "123");
+        UserRequest request = new UserRequest(NAME.concat(" "), EMAIL, PASSWORD);
 
         webTestClient.post().uri("/users")
                 .contentType(APPLICATION_JSON)
@@ -68,7 +72,7 @@ class UserControllerImplTest {
                 .expectBody()
                 .jsonPath("$.path").isEqualTo("/users")
                 .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
-                .jsonPath("$.error").isEqualTo("Validation error")
+                .jsonPath("$.error").isEqualTo("Validation Error")
                 .jsonPath("$.message").isEqualTo("Error on validation attributes");
 
     }
@@ -76,21 +80,20 @@ class UserControllerImplTest {
     @Test
     @DisplayName("Test endpoint findById with sucess")
     void findByIdWithSucess() {
-        final var id = "1234556";
-        final var userResponse = new UserResponse(id, "Lucas", "Lucas@gmail.com", "1234");
+        final var userResponse = new UserResponse(ID, NAME, EMAIL, PASSWORD);
 
         when(userService.findById(anyString())).thenReturn(Mono.just(User.builder().build()));
         when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
 
-        webTestClient.get().uri("/users/"+id)
+        webTestClient.get().uri("/users/1234556")
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.id").isEqualTo(id)
-                .jsonPath("$.name").isEqualTo("Lucas")
-                .jsonPath("$.email").isEqualTo("Lucas@gmail.com")
-                .jsonPath("$.password").isEqualTo("1234");
+                .jsonPath("$.id").isEqualTo(ID)
+                .jsonPath("$.name").isEqualTo(NAME)
+                .jsonPath("$.email").isEqualTo(EMAIL)
+                .jsonPath("$.password").isEqualTo(PASSWORD);
     }
 
     @Test
