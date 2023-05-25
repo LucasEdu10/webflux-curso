@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 
@@ -40,7 +41,7 @@ class UserControllerImplTest {
 
     @Test
     @DisplayName("Test endpoint save with sucess")
-    void testeSave() {
+    void testeSaveWithSucess() {
         UserRequest request = new UserRequest("Lucas", "Lucas@gmail.com", "123");
         when(userService.save(any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
 
@@ -51,6 +52,24 @@ class UserControllerImplTest {
                 .expectStatus().isCreated();
 
         verify(userService, times(1)).save(any(UserRequest.class));
+    }
+
+    @Test
+    @DisplayName("Test endpoint save with sucess")
+    void testeSaveWithBadRequest() {
+        UserRequest request = new UserRequest("Lucas", "Lucas@gmail.com", "123");
+
+        webTestClient.post().uri("/users")
+                .contentType(APPLICATION_JSON)
+                .body(fromValue(request))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.path").isEqualTo("/users")
+                .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
+                .jsonPath("$.error").isEqualTo("Validation error")
+                .jsonPath("$.message").isEqualTo("Error on validation attributes");
+
     }
 
     @Test
