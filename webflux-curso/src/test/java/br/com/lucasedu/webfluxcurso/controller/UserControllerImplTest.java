@@ -105,7 +105,7 @@ class UserControllerImplTest {
         when(userService.findAll()).thenReturn(Flux.just(User.builder().build()));
         when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
 
-        webTestClient.get().uri("/users/")
+        webTestClient.get().uri("/users")
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
