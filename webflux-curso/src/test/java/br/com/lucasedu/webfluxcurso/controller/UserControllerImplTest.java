@@ -33,6 +33,7 @@ class UserControllerImplTest {
     public static final String NAME = "Lucas";
     public static final String EMAIL = "Lucas@gmail.com";
     public static final String PASSWORD = "1234";
+    public static final String BASE_URI = "/users";
     @Autowired
     private WebTestClient webTestClient;
 
@@ -51,7 +52,7 @@ class UserControllerImplTest {
         UserRequest request = new UserRequest(NAME, EMAIL, PASSWORD);
         when(userService.save(any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
 
-        webTestClient.post().uri("/users")
+        webTestClient.post().uri(BASE_URI)
                 .contentType(APPLICATION_JSON)
                 .body(fromValue(request))
                 .exchange()
@@ -65,13 +66,13 @@ class UserControllerImplTest {
     void testeSaveWithBadRequest() {
         UserRequest request = new UserRequest(NAME.concat(" "), EMAIL, PASSWORD);
 
-        webTestClient.post().uri("/users")
+        webTestClient.post().uri(BASE_URI)
                 .contentType(APPLICATION_JSON)
                 .body(fromValue(request))
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody()
-                .jsonPath("$.path").isEqualTo("/users")
+                .jsonPath("$.path").isEqualTo(BASE_URI)
                 .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
                 .jsonPath("$.error").isEqualTo("Validation Error")
                 .jsonPath("$.message").isEqualTo("Error on validation attributes");
@@ -108,7 +109,7 @@ class UserControllerImplTest {
         when(userService.findAll()).thenReturn(Flux.just(User.builder().build()));
         when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
 
-        webTestClient.get().uri("/users")
+        webTestClient.get().uri(BASE_URI)
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
@@ -130,7 +131,7 @@ class UserControllerImplTest {
         when(userService.update(anyString(), any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
         when(userMapper.toResponse(any(User.class))).thenReturn(userResponse);
 
-        webTestClient.patch().uri("/users/"+ID)
+        webTestClient.patch().uri(BASE_URI+"/"+ID)
                 .contentType(APPLICATION_JSON)
                 .body(fromValue(userRequest))
                 .exchange()
@@ -146,6 +147,14 @@ class UserControllerImplTest {
     }
 
     @Test
-    void delete() {
+    @DisplayName("Test endpoint delete with sucess")
+    void testDeleteWithSucess() {
+        when(userService.delete(anyString())).thenReturn(Mono.just(User.builder().build()));
+
+        webTestClient.delete().uri(BASE_URI+"/"+ID)
+                .exchange()
+                .expectStatus().isOk();
+
+        verify(userService).delete(anyString());
     }
 }
